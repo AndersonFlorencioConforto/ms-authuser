@@ -1,12 +1,11 @@
 package com.ead.authuser.services.impl;
 
 import com.ead.authuser.dtos.UserDTO;
+import com.ead.authuser.enums.UserStatus;
+import com.ead.authuser.enums.UserType;
 import com.ead.authuser.models.UserModel;
-import com.ead.authuser.models.enums.UserStatus;
-import com.ead.authuser.models.enums.UserType;
 import com.ead.authuser.repositories.UserRepository;
 import com.ead.authuser.services.UserService;
-import com.ead.authuser.specifications.SpecificationTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

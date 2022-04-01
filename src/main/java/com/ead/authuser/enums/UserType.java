@@ -1,4 +1,4 @@
-package com.ead.authuser.models.enums;
+package com.ead.authuser.enums;
 
 public enum UserType {
 
