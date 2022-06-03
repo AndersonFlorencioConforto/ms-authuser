@@ -5,17 +5,20 @@ import com.ead.authuser.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.hateoas.RepresentationModel;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL) // ignora os atributos com valores nulos, á nível de classe.
 @Entity
 @Table(name = "TB_USERS")
 public class UserModel extends RepresentationModel<UserModel> implements Serializable {
@@ -32,7 +35,7 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     private String email;
 
     @Column(nullable = false,length = 255)
-    @JsonIgnore
+    @JsonIgnore//não retorna o campo nas chamadas HTTPS
     private String password;
 
     @Column(nullable = false,length = 150)
@@ -64,5 +67,9 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private Set<UserCourseModel> usersCourses = new HashSet<>();
 
 }

@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/ead-authuser
+    url: jdbc:postgresql://localhost:5432/ead-authuser
     username: postgres
     password: 123
   jpa:
@@ -22,3 +22,8 @@ logging:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate: INFO
+
+feign:
+  autoconfiguration:
+    jackson:
+      enabled: true

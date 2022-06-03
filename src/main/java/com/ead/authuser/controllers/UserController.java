@@ -34,8 +34,14 @@ public class UserController {
             page = 0,
             size = 10,
             sort = "username",
-            direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<UserModel> usersPaged = userService.findAllUsers(pageable, spec);
+            direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(required = false) UUID courseId) {
+        Page<UserModel> usersPaged = null;
+        if (courseId != null){
+            usersPaged = userService.findAllUsers(pageable,SpecificationTemplate.userCourseId(courseId).and(spec));
+        } else {
+            usersPaged = userService.findAllUsers(pageable,spec);
+        }
+
         if(!usersPaged.isEmpty()) {
             for (UserModel user: usersPaged.toList()) {
                 user.add(linkTo(methodOn(UserController.class).findById(user.getUserId())).withSelfRel());

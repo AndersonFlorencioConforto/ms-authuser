@@ -1,6 +1,7 @@
 package com.ead.authuser.controllers;
 
 import com.ead.authuser.dtos.UserDTO;
+import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.log4j.Log4j2;
@@ -30,6 +31,8 @@ public class AuthenticationController {
             log.warn("Email {} is already taken! ",userDTO.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is already taken!");
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDTO));
+        UserModel userModel = userService.save(userDTO);
+        log.info("User saved successfully userID {}",userModel.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(userModel);
     }
 }

@@ -1,11 +1,11 @@
 version: '3'
 services:
   postgres:
-    container_name: 'ead-authuser'
+    container_name: 'projeto-decoder'
     image: postgres:latest
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=123
     ports:
-      - '5433:5432'
+      - '5432:5432'
