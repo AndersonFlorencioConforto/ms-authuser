@@ -12,11 +12,9 @@ public interface UserService {
 
     Page<UserModel> findAllUsers(Pageable pageable, Specification<UserModel> specification);
     Optional<UserModel> findById(UUID userId);
-    void delete(UserModel userModel);
+    void delete(UUID userId);
     UserModel save(UserDTO userDTO);
-    boolean existsByUsername(String username);
-    boolean existsByEmail(String email);
-    void updateUser(UserModel userModel, UserDTO userDTO);
-    void updatePassword(UserModel userModel, UserDTO userDTO);
-    void updateImage(UserModel userModel, UserDTO userDTO);
+    UserModel updateUser(UUID userId, UserDTO userDTO);
+    void updatePassword(UUID userId, UserDTO userDTO);
+    UserModel updateImage(UUID userId, UserDTO userDTO);
 }

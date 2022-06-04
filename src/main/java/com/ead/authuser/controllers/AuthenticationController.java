@@ -21,18 +21,8 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping(value = "/signup")
-    public ResponseEntity<Object> registerUser(@RequestBody @Validated(UserDTO.UserView.RegistrationPost.class) @JsonView(UserDTO.UserView.RegistrationPost.class) UserDTO userDTO) {
+    public ResponseEntity<UserModel> registerUser(@RequestBody @Validated(UserDTO.UserView.RegistrationPost.class) @JsonView(UserDTO.UserView.RegistrationPost.class) UserDTO userDTO) {
         log.debug("POST registerUser userDTO received {}",userDTO.toString());
-        if(userService.existsByUsername(userDTO.getUsername())) {
-            log.warn("Username {} is already taken! ",userDTO.getUsername());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken!");
-        }
-        if(userService.existsByEmail(userDTO.getEmail())) {
-            log.warn("Email {} is already taken! ",userDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is already taken!");
-        }
-        UserModel userModel = userService.save(userDTO);
-        log.info("User saved successfully userID {}",userModel.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userModel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDTO));
     }
 }

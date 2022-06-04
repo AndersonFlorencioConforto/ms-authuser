@@ -9,7 +9,7 @@ import java.util.UUID;
 @Service
 public class UtilsServiceImpl implements UtilsService {
 
-    private final String REQUEST_URI = "http://localhost:8082";
+    private  final String REQUEST_URI = "http://localhost:8082";
 
 
     @Override

@@ -52,63 +52,37 @@ public class UserController {
 
     @GetMapping(value = "/{userId}")
     public ResponseEntity<Object> findById(@PathVariable UUID userId) {
-        Optional<UserModel> userOptional = userService.findById(userId);
-        if (!userOptional.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        return ResponseEntity.ok().body(userOptional.get());
+        return ResponseEntity.ok().body(userService.findById(userId));
     }
 
     @DeleteMapping(value = "/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable UUID userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
         log.debug("DELETE deleteUser userId received {}",userId);
-        Optional<UserModel> userOptional = userService.findById(userId);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        userService.delete(userOptional.get());
-        return ResponseEntity.ok().body("User deleted success");
+        userService.delete(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{userId}")
-    public ResponseEntity<Object> updateUser(@PathVariable UUID userId,
+    public ResponseEntity<UserModel> updateUser(@PathVariable UUID userId,
                                              @JsonView(UserDTO.UserView.UserPut.class)
                                              @RequestBody @Validated(UserDTO.UserView.UserPut.class) UserDTO userDTO) {
         log.debug("PUT updateUser userDTO received {}",userDTO.toString());
-        Optional<UserModel> userOptional = userService.findById(userId);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        userService.updateUser(userOptional.get(),userDTO);
-        return ResponseEntity.ok().body(userOptional);
+        return ResponseEntity.ok().body(userService.updateUser(userId,userDTO));
     }
 
     @PutMapping(value = "/{userId}/password")
     public ResponseEntity<Object> updatePassword(@PathVariable UUID userId,
                                                  @JsonView(UserDTO.UserView.PasswordPut.class)
                                                  @RequestBody @Validated(UserDTO.UserView.PasswordPut.class) UserDTO userDTO) {
-        Optional<UserModel> userOptional = userService.findById(userId);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        if (!userDTO.getOldPassword().equals(userOptional.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Mismatched old password");
-        }
-
-        userService.updatePassword(userOptional.get(),userDTO);
+        userService.updatePassword(userId,userDTO);
         return ResponseEntity.ok().body("Senha atualizada com sucesso.");
     }
 
     @PutMapping(value = "/{userId}/image")
-    public ResponseEntity<Object> updateImage(@PathVariable UUID userId,
+    public ResponseEntity<UserModel> updateImage(@PathVariable UUID userId,
                                               @JsonView(UserDTO.UserView.ImagePut.class)
                                               @RequestBody @Validated(UserDTO.UserView.ImagePut.class) UserDTO userDTO) {
-        Optional<UserModel> userOptional = userService.findById(userId);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        userService.updateImage(userOptional.get(),userDTO);
-        return ResponseEntity.ok().body(userOptional.get());
+        return ResponseEntity.ok().body(userService.updateImage(userId,userDTO));
     }
 
 }
