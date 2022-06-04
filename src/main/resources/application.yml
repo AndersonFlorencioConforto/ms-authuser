@@ -27,3 +27,9 @@ feign:
   autoconfiguration:
     jackson:
       enabled: true
+
+
+ead:
+  api:
+    url:
+      course: 'http://localhost:8082'
