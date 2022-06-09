@@ -1,9 +1,12 @@
 package com.ead.authuser.services.impl;
 
+import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
 import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
+import com.ead.authuser.models.UserCourseModel;
 import com.ead.authuser.models.UserModel;
+import com.ead.authuser.repositories.UserCourseRespository;
 import com.ead.authuser.repositories.UserRepository;
 import com.ead.authuser.services.UserService;
 import com.ead.authuser.services.exceptions.ConflictException;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +32,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    UserCourseRespository userCourseRespository;
 
     @Override
     public Page<UserModel> findAllUsers(Pageable pageable, Specification<UserModel> specification) {
@@ -44,7 +50,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(UUID userId) {
         Optional<UserModel> userOptional = userRepository.findById(userId);
-        userRepository.delete(userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found.")));
+        UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
+        List<UserCourseModel> allUserCourseIntoUser = userCourseRespository.findAllUserCourseIntoUser(userModel.getUserId());
+        if(!allUserCourseIntoUser.isEmpty()) {
+            userCourseRespository.deleteAll(allUserCourseIntoUser);
+        }
+        userRepository.delete(userModel);
     }
 
     @Override
@@ -90,6 +101,14 @@ public class UserServiceImpl implements UserService {
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userModel.setImageUrl(userDTO.getImageUrl());
+        return userRepository.save(userModel);
+    }
+
+    @Override
+    public UserModel saveSubscriptionInstructor(InstructorDTO instructorDTO) {
+        Optional<UserModel> userOptional = userRepository.findById(instructorDTO.getUserId());
+        UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
+        userModel.setUserType(UserType.INSTRUCTOR);
         return userRepository.save(userModel);
     }
 
