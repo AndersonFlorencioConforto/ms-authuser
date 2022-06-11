@@ -20,4 +20,9 @@ public class UtilsServiceImpl implements UtilsService {
                 + "&size=" + pageable.getPageSize() + "&sort=" + pageable.getSort().toString()
                 .replaceAll(": ", ",");
     }
+
+    @Override
+    public String deleteUserInCourse(UUID userId) {
+        return REQUEST_URL_COURSE + "/courses/users/" + userId;
+    }
 }

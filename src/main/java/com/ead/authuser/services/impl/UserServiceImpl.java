@@ -1,5 +1,6 @@
 package com.ead.authuser.services.impl;
 
+import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
 import com.ead.authuser.enums.UserStatus;
@@ -34,6 +35,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     UserCourseRespository userCourseRespository;
+    @Autowired
+    private CourseClient courseClient;
 
     @Override
     public Page<UserModel> findAllUsers(Pageable pageable, Specification<UserModel> specification) {
@@ -49,13 +52,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(UUID userId) {
+        boolean deleteUserCourseInCourse = false;
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         List<UserCourseModel> allUserCourseIntoUser = userCourseRespository.findAllUserCourseIntoUser(userModel.getUserId());
         if(!allUserCourseIntoUser.isEmpty()) {
             userCourseRespository.deleteAll(allUserCourseIntoUser);
+            deleteUserCourseInCourse = true;
         }
         userRepository.delete(userModel);
+        if (deleteUserCourseInCourse) {
+            courseClient.deleteUserInCourse(userModel.getUserId());
+        }
     }
 
     @Override

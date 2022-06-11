@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface UserCourseService {
 
     UserCourseModel save(UUID userId, UUID courseId);
+
+    void delete(UUID courseId);
 }
