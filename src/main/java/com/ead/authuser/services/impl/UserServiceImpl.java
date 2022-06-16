@@ -5,9 +5,7 @@ import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
 import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
-import com.ead.authuser.models.UserCourseModel;
 import com.ead.authuser.models.UserModel;
-import com.ead.authuser.repositories.UserCourseRespository;
 import com.ead.authuser.repositories.UserRepository;
 import com.ead.authuser.services.UserService;
 import com.ead.authuser.services.exceptions.ConflictException;
@@ -15,12 +13,9 @@ import com.ead.authuser.services.exceptions.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,8 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    UserCourseRespository userCourseRespository;
+
     @Autowired
     private CourseClient courseClient;
 
@@ -52,18 +46,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(UUID userId) {
-        boolean deleteUserCourseInCourse = false;
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
-        List<UserCourseModel> allUserCourseIntoUser = userCourseRespository.findAllUserCourseIntoUser(userModel.getUserId());
-        if(!allUserCourseIntoUser.isEmpty()) {
-            userCourseRespository.deleteAll(allUserCourseIntoUser);
-            deleteUserCourseInCourse = true;
-        }
         userRepository.delete(userModel);
-        if (deleteUserCourseInCourse) {
-            courseClient.deleteUserInCourse(userModel.getUserId());
-        }
     }
 
     @Override
