@@ -1,5 +1,6 @@
 package com.ead.authuser.models;
 
+import com.ead.authuser.dtos.UserEventPublisherDTO;
 import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
@@ -65,4 +67,12 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
+
+    public UserEventPublisherDTO ConvertUserEventPublisherDTO() {
+        UserEventPublisherDTO userEventPublisherDTO = new UserEventPublisherDTO();
+        BeanUtils.copyProperties(this,userEventPublisherDTO);
+        userEventPublisherDTO.setUserType(this.getUserType().toString());
+        userEventPublisherDTO.setUserStatus(this.getUserStatus().toString());
+        return userEventPublisherDTO;
+    }
 }

@@ -3,9 +3,11 @@ package com.ead.authuser.services.impl;
 import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
+import com.ead.authuser.enums.ActionType;
 import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
 import com.ead.authuser.models.UserModel;
+import com.ead.authuser.publishers.UserEventPublisher;
 import com.ead.authuser.repositories.UserRepository;
 import com.ead.authuser.services.UserService;
 import com.ead.authuser.services.exceptions.ConflictException;
@@ -17,8 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CourseClient courseClient;
+
+    @Autowired
+    private UserEventPublisher userEventPublisher;
 
     @Override
     public Page<UserModel> findAllUsers(Pageable pageable, Specification<UserModel> specification) {
@@ -51,6 +56,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userModel);
     }
 
+    @Transactional
     @Override
     public UserModel save(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
@@ -65,7 +71,9 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userDTO, userModel);
         userModel.setUserStatus(UserStatus.ACTIVE);
         userModel.setUserType(UserType.STUDENT);
-        return userRepository.save(userModel);
+        userModel = userRepository.save(userModel);
+        userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.CREATE);
+        return userModel;
     }
 
     @Override
