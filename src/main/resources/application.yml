@@ -19,6 +19,8 @@ spring:
     properties:
       hibernate:
         show_sql: true
+  rabbitmq:
+    addresses: amqps://cmevupch:ifcSNQPAYMgMIRlkvQeIQYCJRMnVOjrt@beaver.rmq.cloudamqp.com/cmevupch
 
 logging:
   level:
