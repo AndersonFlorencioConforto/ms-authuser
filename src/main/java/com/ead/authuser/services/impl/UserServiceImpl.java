@@ -1,6 +1,5 @@
 package com.ead.authuser.services.impl;
 
-import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
 import com.ead.authuser.enums.ActionType;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,9 +28,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private CourseClient courseClient;
 
     @Autowired
     private UserEventPublisher userEventPublisher;
@@ -49,11 +44,13 @@ public class UserServiceImpl implements UserService {
         return userOptional;
     }
 
+    @Transactional
     @Override
     public void delete(UUID userId) {
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userRepository.delete(userModel);
+        userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.DELETE);
     }
 
     @Transactional
@@ -76,13 +73,16 @@ public class UserServiceImpl implements UserService {
         return userModel;
     }
 
+    @Transactional
     @Override
     public UserModel updateUser(UUID userId, UserDTO userDTO) {
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userModel.setFullName(userDTO.getFullName());
         userModel.setPhoneNumber(userDTO.getPhoneNumber());
-        return userRepository.save(userModel);
+        userModel = userRepository.save(userModel);
+        userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.UPDATE);
+        return userModel;
     }
 
     @Override
@@ -102,15 +102,20 @@ public class UserServiceImpl implements UserService {
         Optional<UserModel> userOptional = userRepository.findById(userId);
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userModel.setImageUrl(userDTO.getImageUrl());
-        return userRepository.save(userModel);
+        userModel = userRepository.save(userModel);
+        userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.UPDATE);
+        return userModel;
     }
 
+    @Transactional
     @Override
     public UserModel saveSubscriptionInstructor(InstructorDTO instructorDTO) {
         Optional<UserModel> userOptional = userRepository.findById(instructorDTO.getUserId());
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userModel.setUserType(UserType.INSTRUCTOR);
-        return userRepository.save(userModel);
+        userModel = userRepository.save(userModel);
+        userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.UPDATE);
+        return userModel;
     }
 
 }
