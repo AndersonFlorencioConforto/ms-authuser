@@ -3,6 +3,7 @@ package com.ead.authuser.clients;
 import com.ead.authuser.dtos.CourseDTO;
 import com.ead.authuser.dtos.ResponsePageDTO;
 import com.ead.authuser.services.UtilsService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,29 +32,37 @@ public class CourseClient {
     private UtilsService utilsService;
 
 
-//    @Retry(name = "retryInstance",fallbackMethod = "retryfallback")
+    //    @Retry(name = "retryInstance",fallbackMethod = "retryfallback")
+    @CircuitBreaker(name = "circuitbreakerInstance")
     public Page<CourseDTO> getAllCoursesByUserId(UUID userId, Pageable pageable) {
         List<CourseDTO> searchResult = null;
         ResponseEntity<ResponsePageDTO<CourseDTO>> result = null;
-        String url = utilsService.createUrl(userId,pageable);
-        log.debug("Request URL : {}" , url);
-        log.info("Request URL : {}" , url);
+        String url = utilsService.createUrl(userId, pageable);
+        log.debug("Request URL : {}", url);
+        log.info("Request URL : {}", url);
         try {
-            ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {};
-            result = restTemplate.exchange(url, HttpMethod.GET,null,responseType);
+            ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {
+            };
+            result = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
             searchResult = result.getBody().getContent();
-            log.debug("Response Number of Elements: {}" , searchResult.size());
-        }catch (HttpStatusCodeException e) {
+            log.debug("Response Number of Elements: {}", searchResult.size());
+        } catch (HttpStatusCodeException e) {
             log.error("Error request /courses {}", e);
         }
-        log.info("Ending request /courses userId {}" , userId);
+        log.info("Ending request /courses userId {}", userId);
         return result.getBody();
     }
 
-    public Page<CourseDTO> retryfallback(UUID userId, Pageable pageable,Throwable t){
-        log.error("Inside retry fallback,cause - {}", t.toString());
-        List<CourseDTO> searchResult = new ArrayList<>();
-        return new PageImpl<>(searchResult);
-    }
+//    public Page<CourseDTO> circuitbreakerfallback(UUID userId, Pageable pageable, Throwable t) {
+//        log.error("Inside circuit breaker fallback, cause - {}", t.toString());
+//        List<CourseDTO> searchResult = new ArrayList<>();
+//        return new PageImpl<>(searchResult);
+//    }
+//
+//    public Page<CourseDTO> retryfallback(UUID userId, Pageable pageable, Throwable t) {
+//        log.error("Inside retry fallback,cause - {}", t.toString());
+//        List<CourseDTO> searchResult = new ArrayList<>();
+//        return new PageImpl<>(searchResult);
+//    }
 
 }
