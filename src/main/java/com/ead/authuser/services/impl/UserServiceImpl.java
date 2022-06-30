@@ -3,10 +3,13 @@ package com.ead.authuser.services.impl;
 import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.dtos.UserDTO;
 import com.ead.authuser.enums.ActionType;
+import com.ead.authuser.enums.RoleType;
 import com.ead.authuser.enums.UserStatus;
 import com.ead.authuser.enums.UserType;
+import com.ead.authuser.models.RoleModel;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.publishers.UserEventPublisher;
+import com.ead.authuser.repositories.RoleRepository;
 import com.ead.authuser.repositories.UserRepository;
 import com.ead.authuser.services.UserService;
 import com.ead.authuser.services.exceptions.ConflictException;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -31,6 +35,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserEventPublisher userEventPublisher;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Page<UserModel> findAllUsers(Pageable pageable, Specification<UserModel> specification) {
@@ -64,10 +74,13 @@ public class UserServiceImpl implements UserService {
             log.warn("Email {} is already taken! ", userDTO.getEmail());
             throw new ConflictException("Error: Email is already taken!");
         }
+        RoleModel role = roleRepository.findByRoleName(RoleType.ROLE_STUDENT).orElseThrow(() -> new ResourceNotFoundException("Role is not found"));
         var userModel = new UserModel();
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         BeanUtils.copyProperties(userDTO, userModel);
         userModel.setUserStatus(UserStatus.ACTIVE);
         userModel.setUserType(UserType.STUDENT);
+        userModel.getRoles().add(role);
         userModel = userRepository.save(userModel);
         userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.CREATE);
         return userModel;
