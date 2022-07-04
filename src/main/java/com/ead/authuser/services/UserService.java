@@ -19,5 +19,4 @@ public interface UserService {
     void updatePassword(UUID userId, UserDTO userDTO);
     UserModel updateImage(UUID userId, UserDTO userDTO);
     UserModel saveSubscriptionInstructor(InstructorDTO instructorDTO);
-    void alterarRoleParaAdmin(UUID userId);
 }
