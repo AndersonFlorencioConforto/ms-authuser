@@ -71,8 +71,8 @@ public class UserModel extends RepresentationModel<UserModel> implements Seriali
     @Column(nullable = false)
     private UserType userType;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Apenas passar no Json, não aparece na no retorno
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "TB_USERS_ROLES",
     joinColumns = @JoinColumn (name = "user_id"),
     inverseJoinColumns = @JoinColumn (name = "role_id"))

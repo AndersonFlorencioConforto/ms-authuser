@@ -131,4 +131,13 @@ public class UserServiceImpl implements UserService {
         return userModel;
     }
 
+    @Override
+    public void alterarRoleParaAdmin(UUID userId) {
+        UserModel user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.getRoles().clear();
+        RoleModel role = roleRepository.findByRoleName(RoleType.ROLE_ADMIN).orElseThrow(() -> new ResourceNotFoundException("Role is not found"));
+        user.getRoles().add(role);
+        userRepository.save(user);
+    }
+
 }

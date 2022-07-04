@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.UUID;
+
 @Log4j2
 @RestController
 @CrossOrigin(origins = "*",maxAge = 3600)
@@ -25,5 +28,12 @@ public class AuthenticationController {
     public ResponseEntity<UserModel> registerUser(@RequestBody @Validated(UserDTO.UserView.RegistrationPost.class) @JsonView(UserDTO.UserView.RegistrationPost.class) UserDTO userDTO) {
         log.debug("POST registerUser userDTO received {}",userDTO.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDTO));
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<Void> alterarRoleParaAdmin(@PathVariable(name = "userId") UUID userId){
+        userService.alterarRoleParaAdmin(userId);
+        log.info("Role alterada para admin");
+        return ResponseEntity.noContent().build();
     }
 }
