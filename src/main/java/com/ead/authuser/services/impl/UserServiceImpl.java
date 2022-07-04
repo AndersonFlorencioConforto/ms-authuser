@@ -124,8 +124,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserModel saveSubscriptionInstructor(InstructorDTO instructorDTO) {
         Optional<UserModel> userOptional = userRepository.findById(instructorDTO.getUserId());
+        RoleModel role = roleRepository.findByRoleName(RoleType.ROLE_INSTRUCTOR).orElseThrow(() -> new ResourceNotFoundException("Role is not found"));
         UserModel userModel = userOptional.orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userModel.setUserType(UserType.INSTRUCTOR);
+        userModel.getRoles().add(role);
         userModel = userRepository.save(userModel);
         userEventPublisher.publishUserEvent(userModel.ConvertUserEventPublisherDTO(), ActionType.UPDATE);
         return userModel;
