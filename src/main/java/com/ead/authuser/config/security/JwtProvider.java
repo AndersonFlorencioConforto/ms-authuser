@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 @Log4j2
@@ -20,9 +21,13 @@ public class JwtProvider {
 
 
     public String generatJwt(Authentication authentication){
-        UserDetails userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        final String roles = userDetails.getAuthorities().stream().map(grantedAuthority -> {
+            return grantedAuthority.getAuthority();
+        }).collect(Collectors.joining(","));
         return Jwts.builder()
-                .setSubject((userDetails.getUsername()))
+                .setSubject((userDetails.getUserId().toString()))
+                .claim("roles",roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512,jwtSecret)
