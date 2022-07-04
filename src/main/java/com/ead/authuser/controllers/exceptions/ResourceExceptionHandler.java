@@ -1,6 +1,7 @@
 package com.ead.authuser.controllers.exceptions;
 
 import com.ead.authuser.services.exceptions.ConflictException;
+import com.ead.authuser.services.exceptions.ForbbidenUserException;
 import com.ead.authuser.services.exceptions.ResourceNotFoundException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,19 @@ public class ResourceExceptionHandler {
         err.setTimeStamp(Instant.now());
         err.setStatus(status.value());
         err.setError("Sistema fora do ar!");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+
+    @ExceptionHandler(ForbbidenUserException.class)
+    public ResponseEntity<StandardError> forbbiden(ForbbidenUserException e , HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        StandardError err = new StandardError();
+        err.setTimeStamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Só pode buscar informações apenas do seu usuário!");
         err.setMessage(e.getMessage());
         err.setPath(request.getRequestURI());
         return ResponseEntity.status(status).body(err);
